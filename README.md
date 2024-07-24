@@ -36,13 +36,389 @@
 
 ## API 명세
 
-| Description | Method | URI | Request | Response |
-| ----------- | ------ | --- | ------- | -------- |
-| 공지사항 전체 조회 | GET | /api/notice/infos | - | - |
-| 공지사항 조회 | GET | /api/notice/info/:noticeNo | - | - |
-| 공지사항 등록 | POST | /api/notice/info | - | - |
-| 공지사항 수정 | PATCH | /api/notice/info/:noticeNo | - | - |
-| 공지사항 삭제 | DELETE | /api/notice/info/:noticeNo | - | - |
+<details>
+ <summary><code>GET</code> <code><b>/api/notice/infos</b></code></summary>
+
+##### Description
+> 공지사항 전체 조회 API
+  
+##### Parameters
+
+> | name      | type  |  required     | data type | description       |
+> |-----------|------ |---------------|-----------|-------------------|
+> | pageNo    | query | false         | Integer   | default value 0   |
+> | pageSize  | query | false         | Integer   | default value 100 |
+
+
+##### Responses
+
+> | http code     | content-type                      |
+> |---------------|-----------------------------------|
+> | `200`         | `application/json`                |
+>
+> > ###### Response body
+> > ```json
+> > {
+> > "success": true,
+> > "code": 0,
+> >   "result": {
+> >     "data": {
+> >       "content": [],
+> >       "pageNo": 0,
+> >       "pageSize": 100,
+> >       "totalElements": 0,
+> >       "totalPages": 1,
+> >       "last": true
+> >     }
+> >   }
+> > }
+> > ```
+
+##### Example cURL
+
+> ```javascript
+>  curl -X 'GET' \
+>  'http://localhost:8080/api/notice/infos?pageNo=0&pageSize=100' \
+>  -H 'accept: */*'
+> ```
+
+##### Request URL
+
+> ```http
+> http://localhost:8080/api/notice/infos?pageNo=0&pageSize=100
+> ```
+
+</details>
+
+<details>
+ <summary><code>GET</code> <code><b>/api/notice/info/{noticeNo}</b></code></summary>
+
+##### Description
+> 공지사항 조회 API
+  
+##### Parameters
+
+> | name      | type  |  required     | data type | description       |
+> |-----------|------ |---------------|-----------|-------------------|
+> | noticeNo  | path  | true          | Integer   |                   |
+
+
+##### Responses
+
+> | http code     | content-type                      |
+> |---------------|-----------------------------------|
+> | `200`         | `application/json`                |
+>
+> > ###### Response body
+> > ```json
+> > {
+> > "success": true,
+> > "code": 0,
+> >   "result": {
+> >     "data": {
+> >       "title": "",
+> >       "contents": "",
+> >       "writer": "",
+> >       "createDate": "2024-07-21T10:26:29.983+00:00",
+> >       "viewCount": 1
+> >     }
+> >   }
+> > }
+> > ```
+
+> | http code     | content-type                      |
+> |---------------|-----------------------------------|
+> | `404`         | `application/json`                |
+>
+> > ###### Response body
+> > ```json
+> > {
+> > "success": false,
+> > "code": 404,
+> >   "result": {
+> >     "msg": "공지사항을 찾을 수 없습니다."
+> >   }
+> > }
+> > ```
+
+##### Example cURL
+
+> ```javascript
+>  curl -X 'GET' \
+> 'http://localhost:8080/api/notice/info/1' \
+> -H 'accept: */*'
+> ```
+
+##### Request URL
+
+> ```http
+> http://localhost:8080/api/notice/info/1
+> ```
+
+</details>
+
+<details>
+ <summary><code>POST</code> <code><b>/api/notice/info</b></code></summary>
+
+##### Description
+> 공지사항 등록 API
+  
+##### Parameters
+
+###### Request header
+| content-type        |
+|---------------------|
+|`multipart/form-data`|
+
+###### Request body
+> | name      |  required     | data type            | description       |
+> |-----------|---------------|----------------------|-------------------|
+> | title     | true          | String               | text              |
+> | contents  | true          | String               | text              |
+> | writer    | false         | String               | text              |
+> | startDate | true          | String(date-time)    | text              |
+> | endDate   | true          | String(date-time)    | text              |
+> | file      | false         | array[string]        | file              |
+
+
+##### Responses
+
+> | http code     | content-type                      |
+> |---------------|-----------------------------------|
+> | `200`         | `application/json`                |
+>
+> > ###### Response body
+> > ```json
+> > {
+> > "success": true,
+> > "code": 0,
+> >   "result": {
+> >     "data": "공지사항 등록에 성공하였습니다."
+> >   }
+> > }
+> > ```
+
+> | http code     | content-type                      |
+> |---------------|-----------------------------------|
+> | `400`         | `application/json`                |
+>
+> > ###### Response body
+> > ```json
+> > {
+> > "success": false,
+> > "code": 400,
+> >   "result": {
+> >     "msg": "..."
+> >   }
+> > }
+> > ```
+
+> | http code     | content-type                      |
+> |---------------|-----------------------------------|
+> | `500`         | `application/json`                |
+>
+> > ###### Response body
+> > ```json
+> > {
+> > "success": false,
+> > "code": 500,
+> >   "result": {
+> >     "msg": "이미 존재하는 공지사항입니다."
+> >   }
+> > }
+> > ```
+
+##### Example cURL
+
+> ```javascript
+>  curl -X 'POST' \
+> 'http://localhost:8080/api/notice/info' \
+> -H 'accept: application/json' \
+> -H 'Content-Type: multipart/form-data' \
+> -F 'file=@\"C:/myfile.txt\"' \
+> -F 'title=test111111' \
+> -F 'contents=test' \
+> -F 'startDate=2024-07-24 00:00:00' \
+> -F 'endDate=2024-07-24 23:59:59'
+> ```
+
+##### Request URL
+
+> ```http
+> http://localhost:8080/api/notice/info
+> ```
+
+</details>
+
+<details>
+ <summary><code>PATCH</code> <code><b>/api/notice/info/{noticeNo}</b></code></summary>
+
+##### Description
+> 공지사항 수정 API
+  
+##### Parameters
+
+> | name      | type  |  required     | data type | description       |
+> |-----------|------ |---------------|-----------|-------------------|
+> | noticeNo  | path  | true          | Integer   |                   |
+
+###### Request header
+| content-type        |
+|---------------------|
+|`multipart/form-data`|
+
+###### Request body
+> | name      |  required     | data type            | description       |
+> |-----------|---------------|----------------------|-------------------|
+> | title     | true          | String               | text              |
+> | contents  | true          | String               | text              |
+> | startDate | true          | String(date-time)    | text              |
+> | endDate   | true          | String(date-time)    | text              |
+> | file      | false         | array[string]        | file              |
+
+
+##### Responses
+
+> | http code     | content-type                      |
+> |---------------|-----------------------------------|
+> | `200`         | `application/json`                |
+>
+> > ###### Response body
+> > ```json
+> > {
+> > "success": true,
+> > "code": 0,
+> >   "result": {
+> >     "data": "공지사항 수정에 성공하였습니다."
+> >   }
+> > }
+> > ```
+
+> | http code     | content-type                      |
+> |---------------|-----------------------------------|
+> | `400`         | `application/json`                |
+>
+> > ###### Response body
+> > ```json
+> > {
+> > "success": false,
+> > "code": 400,
+> >   "result": {
+> >     "msg": "..."
+> >   }
+> > }
+> > ```
+
+> | http code     | content-type                      |
+> |---------------|-----------------------------------|
+> | `404`         | `application/json`                |
+>
+> > ###### Response body
+> > ```json
+> > {
+> > "success": false,
+> > "code": 404,
+> >   "result": {
+> >     "msg": "공지사항을 찾을 수 없습니다."
+> >   }
+> > }
+> > ```
+
+> | http code     | content-type                      |
+> |---------------|-----------------------------------|
+> | `500`         | `application/json`                |
+>
+> > ###### Response body
+> > ```json
+> > {
+> > "success": false,
+> > "code": 500,
+> >   "result": {
+> >     "msg": "이미 존재하는 공지사항입니다."
+> >   }
+> > }
+> > ```
+
+##### Example cURL
+
+> ```javascript
+>  curl -X 'PATCH' \
+> 'http://localhost:8080/api/notice/info/1' \
+> -H 'accept: application/json' \
+> -H 'Content-Type: multipart/form-data' \
+> -F 'file=@\"C:/myfile.txt\"' \
+> -F 'title=test111111' \
+> -F 'contents=test' \
+> ```
+
+##### Request URL
+
+> ```http
+> http://localhost:8080/api/notice/info/1
+> ```
+
+</details>
+
+<details>
+ <summary><code>DELETE</code> <code><b>/api/notice/info/{noticeNo}</b></code></summary>
+
+##### Description
+> 공지사항 삭제 API
+  
+##### Parameters
+
+> | name      | type  |  required     | data type | description       |
+> |-----------|------ |---------------|-----------|-------------------|
+> | noticeNo  | path  | true          | Integer   |                   |
+
+
+##### Responses
+
+> | http code     | content-type                      |
+> |---------------|-----------------------------------|
+> | `200`         | `application/json`                |
+>
+> > ###### Response body
+> > ```json
+> > {
+> > "success": true,
+> > "code": 0,
+> >   "result": {
+> >     "data": "공지사항 삭제에 성공하였습니다."
+> >   }
+> > }
+> > ```
+
+> | http code     | content-type                      |
+> |---------------|-----------------------------------|
+> | `404`         | `application/json`                |
+>
+> > ###### Response body
+> > ```json
+> > {
+> > "success": false,
+> > "code": 404,
+> >   "result": {
+> >     "msg": "공지사항을 찾을 수 없습니다."
+> >   }
+> > }
+> > ```
+
+##### Example cURL
+
+> ```javascript
+>  curl -X 'DELETE' \
+> 'http://localhost:8080/api/notice/info/1' \
+> -H 'accept: */*'
+> ```
+
+##### Request URL
+
+> ```http
+> http://localhost:8080/api/notice/info/1
+> ```
+
+</details>
 
 ## DB ERD
 ![image](https://github.com/user-attachments/assets/f028d76a-002d-4bba-8463-2a73241a195f)
