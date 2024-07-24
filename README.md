@@ -36,13 +36,13 @@
 
 ## API 명세
 
-| Method | URI | Description |
-| ------ | --- | ----------- |
-| GET | /api/notice/infos | [공지사항 전체 조회]() |
-| GET | /api/notice/info/:noticeNo | [공지사항 조회]() |
-| POST | /api/notice/info | [공지사항 등록]() |
-| PATCH | /api/notice/info/:noticeNo | [공지사항 수정]() |
-| DELETE | /api/notice/info/:noticeNo | [공지사항 삭제]() |
+| Description | Method | URI | Request | Response |
+| ----------- | ------ | --- | ------- | -------- |
+| 공지사항 전체 조회 | GET | /api/notice/infos | - | - |
+| 공지사항 조회 | GET | /api/notice/info/:noticeNo | - | - |
+| 공지사항 등록 | POST | /api/notice/info | - | - |
+| 공지사항 수정 | PATCH | /api/notice/info/:noticeNo | - | - |
+| 공지사항 삭제 | DELETE | /api/notice/info/:noticeNo | - | - |
 
 ## DB ERD
 ![image](https://github.com/user-attachments/assets/f028d76a-002d-4bba-8463-2a73241a195f)
