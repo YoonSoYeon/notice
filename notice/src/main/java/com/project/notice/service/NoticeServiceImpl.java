@@ -2,7 +2,6 @@ package com.project.notice.service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.BeanUtils;
@@ -41,12 +40,12 @@ public class NoticeServiceImpl implements NoticeService {
 		Page<NoticeInfo> noticePage = noticeInfoRepository.findAll(pageable);
 
 		List<NoticeInfoDto> noticeResponse = noticePage.getContent().stream().map(n -> this.copyToNoticeInfo(n)).collect(Collectors.toList());
-		
+
 		return PageDto.builder().content(noticeResponse).pageNo(pageNo).pageSize(pageSize).totalElements(noticePage.getTotalElements()).totalPages(noticePage.getTotalPages()).last(noticePage.isLast()).build();
 	}
 
 	@Transactional
-	public NoticeInfoDto readNoticeInfo(Long noticeNo) {
+	public NoticeInfoDto readNoticeInfo(Long noticeNo) throws Exception{
 		noticeInfoRepository.updateViewCount(noticeNo);
 		NoticeInfo noticeInfo = noticeInfoRepository.findById(noticeNo).orElseThrow(NoticeNotFoundException::new);
 		return this.copyToNoticeInfo(noticeInfo);
@@ -54,32 +53,35 @@ public class NoticeServiceImpl implements NoticeService {
 
 	@Transactional
 	public void createNoticeInfo(NoticeInfoCreationRequest noticeInfo, MultipartFile[] files) throws Exception {
-		Optional<NoticeInfo> optionalNoticeInfoByTitle = noticeInfoRepository.findByTitle(noticeInfo.getTitle());
-		if (optionalNoticeInfoByTitle.isPresent() == false) {
-			NoticeInfo noticeInfoToCreate = new NoticeInfo();
-			BeanUtils.copyProperties(noticeInfo, noticeInfoToCreate);
-			NoticeInfo info = noticeInfoRepository.save(noticeInfoToCreate);
-			if (info == null)
-				throw new SaveFailureException();
-
-			this.setFileInfo(files, noticeInfoToCreate);
-			noticeInfoRepository.flush();
-		} else {
+		noticeInfoRepository.findByTitle(noticeInfo.getTitle()).ifPresent(t -> {
 			throw new ExistException();
-		}
+		});
+
+		NoticeInfo noticeInfoToCreate = new NoticeInfo();
+		BeanUtils.copyProperties(noticeInfo, noticeInfoToCreate);
+		NoticeInfo info = noticeInfoRepository.save(noticeInfoToCreate);
+		if (info == null)
+			throw new SaveFailureException();
+
+		this.setFileInfo(files, noticeInfoToCreate);
+		noticeInfoRepository.flush();
 	}
 
 	@Transactional
 	public void deleteNoticeInfo(Long noticeNo) {
-		if (noticeNo == null)
-			noticeInfoRepository.deleteAll();
-		else
-			noticeInfoRepository.deleteById(noticeNo);
+		NoticeInfo noticeInfo = noticeInfoRepository.findById(noticeNo).orElseThrow(NoticeNotFoundException::new);
+		noticeInfoRepository.delete(noticeInfo);
 	}
 
 	@Transactional
 	public void updateNoticeInfo(NoticeInfoCreationRequest request, MultipartFile[] files, Long noticeNo) throws Exception {
 		NoticeInfo noticeInfo = noticeInfoRepository.findById(noticeNo).orElseThrow(NoticeNotFoundException::new);
+		noticeInfoRepository.findByTitleAndNoticeNoNot(request.getTitle(), noticeNo).ifPresent(t -> {
+			throw new ExistException();
+		});
+		
+		if (request.getTitle() != null && request.getTitle().isEmpty() == false)
+			noticeInfo.setTitle(request.getTitle());
 
 		if (request.getContents() != null && request.getContents().isEmpty() == false)
 			noticeInfo.setContents(request.getContents());
@@ -94,7 +96,10 @@ public class NoticeServiceImpl implements NoticeService {
 		if (noticeInfo.getNoticefiles() != null) {
 			noticeFileToDelete.addAll(noticeInfo.getNoticefiles());
 			noticeInfo.getNoticefiles().clear();
-			noticeInfoRepository.save(noticeInfo);
+			NoticeInfo saved = noticeInfoRepository.save(noticeInfo);
+			if (saved == null)
+				throw new SaveFailureException();
+
 			this.setFileInfo(files, noticeInfo);
 			noticeInfoRepository.flush();
 			noticeInfo.getNoticefiles().removeAll(noticeFileToDelete);
@@ -102,13 +107,13 @@ public class NoticeServiceImpl implements NoticeService {
 			throw new UpdateFailureException();
 		}
 	}
-	
+
 	private NoticeInfoDto copyToNoticeInfo(NoticeInfo noticeInfo) {
 		NoticeInfoDto noticeInfoDto = new NoticeInfoDto();
 		BeanUtils.copyProperties(noticeInfo, noticeInfoDto);
 		return noticeInfoDto;
 	}
-	
+
 	private void setFileInfo(MultipartFile[] files, NoticeInfo noticeInfo) throws Exception {
 		if (files != null && files.length > 0) {
 			for (MultipartFile file : files) {

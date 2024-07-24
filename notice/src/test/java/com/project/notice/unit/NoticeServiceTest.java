@@ -1,5 +1,6 @@
 package com.project.notice.unit;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.doNothing;
@@ -22,6 +23,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
+import com.project.notice.exception.ExistException;
 import com.project.notice.model.NoticeFile;
 import com.project.notice.model.NoticeInfo;
 import com.project.notice.model.dto.NoticeInfoDto;
@@ -42,25 +44,29 @@ public class NoticeServiceTest {
 	@Test
 	@DisplayName("공지사항 전체 조회")
 	public void readNoticeInfos() {
-		// given
+		//given
+		Integer pageNo = 0;
+		Integer pageSize = 1;
+		
 		NoticeInfo noticeInfo = NoticeInfo.builder().contents("test").title("test").writer("test").build();
 		List<NoticeInfo> noticeInfos = List.of(noticeInfo);
 
-		Pageable pageable = PageRequest.of(1, 1, Sort.by("noticeNo").ascending());
+		Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by("noticeNo").ascending());
 		PageImpl<NoticeInfo> page = new PageImpl<NoticeInfo>(noticeInfos);
 
 		doReturn(page).when(noticeInfoRepository).findAll(pageable);
 
-		// when
-		PageDto findNoticeInfo = noticeService.readNoticeInfos(1, 1);
+		//when
+		PageDto findNoticeInfo = noticeService.readNoticeInfos(pageNo, pageSize);
 
-		// then
+		//then
 		assertEquals(noticeInfo.getTitle(), findNoticeInfo.getContent().get(0).getTitle());
 	}
 
 	@Test
 	@DisplayName("공지사항 조회")
 	public void readNoticeInfo() throws Exception {
+		//given
 		Long noticeNo = 1L;
 		Long viewCount = 0L;
 
@@ -69,45 +75,59 @@ public class NoticeServiceTest {
 
 		doReturn(Optional.of(noticeInfo)).when(noticeInfoRepository).findById(noticeNo);
 
+		//when
 		NoticeInfoDto noticeInfoDto = noticeService.readNoticeInfo(noticeNo);
 
+		//then
 		assertEquals(noticeInfo.getTitle(), noticeInfoDto.getTitle());
 	}
 
 	@Test
 	@DisplayName("공지사항 생성")
 	public void createNoticeInfo() throws Exception {
+		//given
 		NoticeInfoCreationRequest request = NoticeInfoCreationRequest.builder().contents("test").title("test").writer("test").startDate(Timestamp.valueOf("2024-07-23 00:00:00")).endDate(Timestamp.valueOf("2024-07-23 23:59:59"))
 				.build();
 
 		NoticeInfo noticeInfo = new NoticeInfo();
 		BeanUtils.copyProperties(request, noticeInfo);
-		
+
 		doReturn(noticeInfo).when(noticeInfoRepository).save(noticeInfo);
-		
+
+		//when, then
 		assertAll(() -> noticeService.createNoticeInfo(request, null));
 	}
-
+	
 	@Test
-	@DisplayName("공지사항 전체 삭제")
-	public void deleteNoticeInfo() throws Exception {
-		doNothing().when(noticeInfoRepository).deleteAll();
+	@DisplayName("공지사항 생성 - 제목 중복 체크")
+	public void createNoticeInfo_existTitle() throws Exception {
+		//given
+		NoticeInfoCreationRequest request = NoticeInfoCreationRequest.builder().contents("test").title("test").writer("test").startDate(Timestamp.valueOf("2024-07-23 00:00:00")).endDate(Timestamp.valueOf("2024-07-23 23:59:59"))
+				.build();
+		NoticeInfo noticeInfo = new NoticeInfo();
+		BeanUtils.copyProperties(request, noticeInfo);
 		
-		assertAll(() -> noticeService.deleteNoticeInfo(null));
+		doReturn(Optional.of(noticeInfo)).when(noticeInfoRepository).findByTitle("test");
+		
+		//when, then
+		assertThatThrownBy(() -> noticeService.createNoticeInfo(request, null)).isInstanceOf(ExistException.class);
 	}
 
 	@Test
 	@DisplayName("공지사항 삭제")
 	public void deleteNoticeInfoByNoticeNo() throws Exception {
+		//given
 		Long noticeNo = 1L;
 		doNothing().when(noticeInfoRepository).deleteById(noticeNo);
-		
+
+		//when, then
 		assertAll(() -> noticeService.deleteNoticeInfo(noticeNo));
 	}
 
 	@Test
 	@DisplayName("공지사항 수정")
 	public void updateNoticeInfo() throws Exception {
+		//given
 		Long noticeNo = 1L;
 		NoticeInfo noticeInfo = NoticeInfo.builder().noticeNo(noticeNo).contents("test").title("test").writer("test").startDate(Timestamp.valueOf("2024-07-23 00:00:00")).endDate(Timestamp.valueOf("2024-07-23 23:59:59"))
 				.Noticefiles(new ArrayList<NoticeFile>()).build();
@@ -119,6 +139,7 @@ public class NoticeServiceTest {
 
 		BeanUtils.copyProperties(noticeInfo, request);
 
+		//when, then
 		assertAll(() -> noticeService.updateNoticeInfo(request, null, noticeNo));
 	}
 }

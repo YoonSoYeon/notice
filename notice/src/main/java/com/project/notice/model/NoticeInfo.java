@@ -36,23 +36,23 @@ public class NoticeInfo {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long noticeNo;
-	
+
 	@Column(nullable = false, length = 128)
 	private String title;
-	
+
 	@Column(nullable = false, length = 1024)
 	private String contents;
-	
+
 	@Column(nullable = false, length = 10)
 	private String writer;
-	
+
 	private Timestamp startDate;
 	private Timestamp endDate;
-	
+
 	@CreationTimestamp
 	@Column(nullable = false)
 	private Timestamp createDate;
-	
+
 	@ColumnDefault("0")
 	private Long viewCount;
 

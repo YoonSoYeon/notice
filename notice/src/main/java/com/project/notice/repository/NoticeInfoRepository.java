@@ -16,4 +16,6 @@ public interface NoticeInfoRepository extends JpaRepository<NoticeInfo, Long> {
 	void updateViewCount(@Param("noticeNo") Long noticeNo);
 	
 	Optional<NoticeInfo> findByTitle(String title);
+	
+	Optional<NoticeInfo> findByTitleAndNoticeNoNot(String title, Long noticeNo);
 }

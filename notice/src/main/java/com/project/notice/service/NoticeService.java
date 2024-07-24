@@ -8,8 +8,12 @@ import com.project.notice.model.request.NoticeInfoCreationRequest;
 
 public interface NoticeService {
 	public PageDto readNoticeInfos(int pageNo, int pageSize);
-	public NoticeInfoDto readNoticeInfo(Long noticeNo);
+
+	public NoticeInfoDto readNoticeInfo(Long noticeNo) throws Exception;
+
 	public void createNoticeInfo(NoticeInfoCreationRequest noticeInfo, MultipartFile[] files) throws Exception;
+
 	public void deleteNoticeInfo(Long noticeNo);
+
 	public void updateNoticeInfo(NoticeInfoCreationRequest request, MultipartFile[] files, Long noticeNo) throws Exception;
 }
