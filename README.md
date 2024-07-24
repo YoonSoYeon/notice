@@ -17,6 +17,25 @@
 - Gradle
 - PostgreSQL 42.2.20
 
+## 설치 및 실행
+
+**Install**
+
+```
+$ git clone git@github.com:YoonSoYeon/notice.git
+
+or
+
+$ git clone https://github.com/YoonSoYeon/notice.git
+```
+
+**Run**
+
+```
+$ gradle clean && gradle package
+$ java -jar ./build/libs/notice-0.0.1-SNAPSHOT.jar
+```
+
 ## 주요 기능
 공지사항의 주요 기능은 다음과 같다.
 
