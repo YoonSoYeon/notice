@@ -423,5 +423,6 @@
 </details>
 
 ## DB ERD
-![image](https://github.com/user-attachments/assets/f028d76a-002d-4bba-8463-2a73241a195f)
+![image](https://github.com/user-attachments/assets/02c21995-b1ef-43c5-85f1-36a56529b5be)
+
 
