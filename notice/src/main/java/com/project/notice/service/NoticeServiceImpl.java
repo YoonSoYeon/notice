@@ -12,6 +12,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.ObjectUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.project.notice.exception.ExistException;
@@ -23,6 +24,7 @@ import com.project.notice.model.NoticeInfo;
 import com.project.notice.model.dto.NoticeInfoDto;
 import com.project.notice.model.dto.PageDto;
 import com.project.notice.model.request.NoticeInfoCreationRequest;
+import com.project.notice.model.request.NoticeInfoUpdationRequest;
 import com.project.notice.repository.NoticeInfoRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -74,16 +76,17 @@ public class NoticeServiceImpl implements NoticeService {
 	}
 
 	@Transactional
-	public void updateNoticeInfo(NoticeInfoCreationRequest request, MultipartFile[] files, Long noticeNo) throws Exception {
+	public void updateNoticeInfo(NoticeInfoUpdationRequest request, MultipartFile[] files, Long noticeNo) throws Exception {
 		NoticeInfo noticeInfo = noticeInfoRepository.findById(noticeNo).orElseThrow(NoticeNotFoundException::new);
 		noticeInfoRepository.findByTitleAndNoticeNoNot(request.getTitle(), noticeNo).ifPresent(t -> {
 			throw new ExistException();
 		});
 		
-		if (request.getTitle() != null && request.getTitle().isEmpty() == false)
+		
+		if (ObjectUtils.isEmpty(request.getTitle()) == false)
 			noticeInfo.setTitle(request.getTitle());
 
-		if (request.getContents() != null && request.getContents().isEmpty() == false)
+		if (ObjectUtils.isEmpty(request.getContents()) == false)
 			noticeInfo.setContents(request.getContents());
 
 		if (request.getStartDate() != null)

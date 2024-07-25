@@ -29,6 +29,7 @@ import com.project.notice.model.NoticeInfo;
 import com.project.notice.model.dto.NoticeInfoDto;
 import com.project.notice.model.dto.PageDto;
 import com.project.notice.model.request.NoticeInfoCreationRequest;
+import com.project.notice.model.request.NoticeInfoUpdationRequest;
 import com.project.notice.repository.NoticeInfoRepository;
 import com.project.notice.service.NoticeServiceImpl;
 
@@ -132,7 +133,7 @@ public class NoticeServiceTest {
 		NoticeInfo noticeInfo = NoticeInfo.builder().noticeNo(noticeNo).contents("test").title("test").writer("test").startDate(Timestamp.valueOf("2024-07-23 00:00:00")).endDate(Timestamp.valueOf("2024-07-23 23:59:59"))
 				.Noticefiles(new ArrayList<NoticeFile>()).build();
 
-		NoticeInfoCreationRequest request = new NoticeInfoCreationRequest();
+		NoticeInfoUpdationRequest request = new NoticeInfoUpdationRequest();
 
 		doReturn(Optional.of(noticeInfo)).when(noticeInfoRepository).findById(noticeNo);
 		doReturn(noticeInfo).when(noticeInfoRepository).save(noticeInfo);

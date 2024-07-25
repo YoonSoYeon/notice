@@ -43,7 +43,7 @@ public class NoticeInfo {
 	@Column(nullable = false, length = 1024)
 	private String contents;
 
-	@Column(nullable = false, length = 10)
+	@Column(nullable = false, length = 32)
 	private String writer;
 
 	private Timestamp startDate;

@@ -13,11 +13,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.project.notice.WebUtil;
 import com.project.notice.code.MessageCode;
 import com.project.notice.model.request.NoticeInfoCreationRequest;
+import com.project.notice.model.request.NoticeInfoUpdationRequest;
 import com.project.notice.response.Response;
 import com.project.notice.service.NoticeService;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -46,7 +49,8 @@ public class NoticeController {
 	// create notice
 	@PostMapping(value = "/info",
 			consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-	public Response createNoticeInfo(@Valid NoticeInfoCreationRequest request, @RequestParam(required = false, value = "file") MultipartFile[] files) throws Exception {
+	public Response createNoticeInfo(HttpServletRequest httpRequest, @Valid NoticeInfoCreationRequest request, @RequestParam(required = false, value = "file") MultipartFile[] files) throws Exception {
+		request.setWriter(httpRequest.getRemoteAddr());
 		noticeService.createNoticeInfo(request, files);
 		return Response.success(MessageCode.NOTICE_SAVE_SUCCESS.getMessage());
 	}
@@ -61,7 +65,7 @@ public class NoticeController {
 	// update notice one by noticeNo
 	@PatchMapping(value = "/info/{noticeNo}",
 			consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-	public Response updateNoticeInfo(NoticeInfoCreationRequest request, @RequestParam(required = false, value = "file") MultipartFile[] files, @PathVariable("noticeNo") Long noticeNo) throws Exception {
+	public Response updateNoticeInfo(@Valid NoticeInfoUpdationRequest request, @RequestParam(required = false, value = "file") MultipartFile[] files, @PathVariable("noticeNo") Long noticeNo) throws Exception {
 		noticeService.updateNoticeInfo(request, files, noticeNo);
 		return Response.success(MessageCode.NOTICE_UPDATE_SUCCESS.getMessage());
 	}
