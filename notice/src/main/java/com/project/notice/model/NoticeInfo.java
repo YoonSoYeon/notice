@@ -57,6 +57,7 @@ public class NoticeInfo {
 	private Long viewCount;
 
 	@JsonBackReference
+	@Builder.Default
 	@OneToMany(mappedBy = "noticeInfo", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<NoticeFile> Noticefiles = new ArrayList<NoticeFile>();
 }

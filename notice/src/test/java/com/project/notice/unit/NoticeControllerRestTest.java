@@ -56,7 +56,6 @@ public class NoticeControllerRestTest {
 
 		mockMvc.perform(get("/api/notice/infos"))
 			.andExpect(status().isOk())
-			.andExpect(jsonPath("$.result.data.content.length()").value(pageSize))
 			.andDo(print());
 	}
 

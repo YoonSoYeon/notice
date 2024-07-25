@@ -11,11 +11,11 @@ import com.project.notice.model.NoticeInfo;
 
 public interface NoticeInfoRepository extends JpaRepository<NoticeInfo, Long> {
 
-	@Modifying
+	@Modifying(clearAutomatically = true, flushAutomatically = true)
 	@Query("update NoticeInfo n set n.viewCount = n.viewCount + 1 where n.noticeNo = :noticeNo")
 	void updateViewCount(@Param("noticeNo") Long noticeNo);
-	
+
 	Optional<NoticeInfo> findByTitle(String title);
-	
+
 	Optional<NoticeInfo> findByTitleAndNoticeNoNot(String title, Long noticeNo);
 }

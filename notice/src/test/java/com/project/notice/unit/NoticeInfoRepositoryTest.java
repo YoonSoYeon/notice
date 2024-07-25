@@ -18,7 +18,7 @@ import com.project.notice.model.NoticeInfo;
 import com.project.notice.repository.NoticeInfoRepository;
 
 @DataJpaTest
-@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+@AutoConfigureTestDatabase
 public class NoticeInfoRepositoryTest {
 
 	@Autowired
@@ -118,8 +118,6 @@ public class NoticeInfoRepositoryTest {
 	public void updateViewCountTest() {
 		// given
 		NoticeInfo saved = noticeInfoRepository.save(NoticeInfo.builder().title("test1").contents("test").writer("test").build());
-		entityManager.flush();
-		entityManager.clear();
 		
 		//when
 		noticeInfoRepository.updateViewCount(saved.getNoticeNo());

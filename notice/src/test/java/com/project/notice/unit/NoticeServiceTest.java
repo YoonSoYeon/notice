@@ -24,6 +24,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
 import com.project.notice.exception.ExistException;
+import com.project.notice.exception.NoticeNotFoundException;
 import com.project.notice.model.NoticeFile;
 import com.project.notice.model.NoticeInfo;
 import com.project.notice.model.dto.NoticeInfoDto;
@@ -113,13 +114,32 @@ public class NoticeServiceTest {
 		//when, then
 		assertThatThrownBy(() -> noticeService.createNoticeInfo(request, null)).isInstanceOf(ExistException.class);
 	}
+	
+	@Test
+	@DisplayName("존재하지 않는 공지사항 삭제")
+	public void deleteNoticeInfoByNoticeNo_throw() throws Exception {
+		//given
+		Long noticeNo = 1L;
+
+		//when, then
+		assertThatThrownBy(() -> noticeService.deleteNoticeInfo(noticeNo)).isInstanceOf(NoticeNotFoundException.class);
+	}
 
 	@Test
 	@DisplayName("공지사항 삭제")
 	public void deleteNoticeInfoByNoticeNo() throws Exception {
 		//given
 		Long noticeNo = 1L;
-		doNothing().when(noticeInfoRepository).deleteById(noticeNo);
+		
+		NoticeInfoCreationRequest request = NoticeInfoCreationRequest.builder().contents("test").title("test").writer("test").startDate(Timestamp.valueOf("2024-07-23 00:00:00")).endDate(Timestamp.valueOf("2024-07-23 23:59:59"))
+				.build();
+
+		NoticeInfo noticeInfo = new NoticeInfo();
+		BeanUtils.copyProperties(request, noticeInfo);
+		noticeInfo.setNoticeNo(noticeNo);
+
+		doReturn(Optional.of(noticeInfo)).when(noticeInfoRepository).findById(noticeNo);
+		doNothing().when(noticeInfoRepository).delete(noticeInfo);
 
 		//when, then
 		assertAll(() -> noticeService.deleteNoticeInfo(noticeNo));

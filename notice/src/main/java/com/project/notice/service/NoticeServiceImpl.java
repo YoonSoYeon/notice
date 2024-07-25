@@ -47,7 +47,7 @@ public class NoticeServiceImpl implements NoticeService {
 	}
 
 	@Transactional
-	public NoticeInfoDto readNoticeInfo(Long noticeNo) throws Exception{
+	public NoticeInfoDto readNoticeInfo(Long noticeNo) throws Exception {
 		noticeInfoRepository.updateViewCount(noticeNo);
 		NoticeInfo noticeInfo = noticeInfoRepository.findById(noticeNo).orElseThrow(NoticeNotFoundException::new);
 		return this.copyToNoticeInfo(noticeInfo);
@@ -61,12 +61,8 @@ public class NoticeServiceImpl implements NoticeService {
 
 		NoticeInfo noticeInfoToCreate = new NoticeInfo();
 		BeanUtils.copyProperties(noticeInfo, noticeInfoToCreate);
-		NoticeInfo info = noticeInfoRepository.save(noticeInfoToCreate);
-		if (info == null)
-			throw new SaveFailureException();
-
-		this.setFileInfo(files, noticeInfoToCreate);
-		noticeInfoRepository.flush();
+		
+		this.saveNotice(noticeInfoToCreate, files);
 	}
 
 	@Transactional
@@ -81,8 +77,7 @@ public class NoticeServiceImpl implements NoticeService {
 		noticeInfoRepository.findByTitleAndNoticeNoNot(request.getTitle(), noticeNo).ifPresent(t -> {
 			throw new ExistException();
 		});
-		
-		
+
 		if (ObjectUtils.isEmpty(request.getTitle()) == false)
 			noticeInfo.setTitle(request.getTitle());
 
@@ -99,12 +94,8 @@ public class NoticeServiceImpl implements NoticeService {
 		if (noticeInfo.getNoticefiles() != null) {
 			noticeFileToDelete.addAll(noticeInfo.getNoticefiles());
 			noticeInfo.getNoticefiles().clear();
-			NoticeInfo saved = noticeInfoRepository.save(noticeInfo);
-			if (saved == null)
-				throw new SaveFailureException();
 
-			this.setFileInfo(files, noticeInfo);
-			noticeInfoRepository.flush();
+			this.saveNotice(noticeInfo, files);
 			noticeInfo.getNoticefiles().removeAll(noticeFileToDelete);
 		} else {
 			throw new UpdateFailureException();
@@ -115,6 +106,14 @@ public class NoticeServiceImpl implements NoticeService {
 		NoticeInfoDto noticeInfoDto = new NoticeInfoDto();
 		BeanUtils.copyProperties(noticeInfo, noticeInfoDto);
 		return noticeInfoDto;
+	}
+	
+	private void saveNotice(NoticeInfo noticeInfo, MultipartFile[] files) throws Exception {
+		NoticeInfo info = noticeInfoRepository.save(noticeInfo);
+		if (info == null)
+			throw new SaveFailureException();
+
+		this.setFileInfo(files, noticeInfo);
 	}
 
 	private void setFileInfo(MultipartFile[] files, NoticeInfo noticeInfo) throws Exception {

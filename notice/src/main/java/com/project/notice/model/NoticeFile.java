@@ -1,6 +1,5 @@
 package com.project.notice.model;
 
-
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import jakarta.persistence.CascadeType;
@@ -22,11 +21,11 @@ public class NoticeFile {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long fileNo;
-	
+
 	@Column(nullable = false, length = 256)
 	private String fileName;
-	
-	@Column(columnDefinition="bytea")
+
+	@Column(columnDefinition = "bytea")
 	private byte[] attachFile;
 
 	@ManyToOne(cascade = CascadeType.PERSIST)

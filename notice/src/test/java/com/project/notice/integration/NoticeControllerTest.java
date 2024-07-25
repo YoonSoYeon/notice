@@ -31,8 +31,6 @@ import com.project.notice.model.dto.NoticeInfoDto;
 import com.project.notice.repository.NoticeInfoRepository;
 import com.project.notice.service.NoticeServiceImpl;
 
-import jakarta.persistence.EntityManager;
-
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
@@ -46,9 +44,6 @@ public class NoticeControllerTest {
 
 	@Autowired
 	private MockMvc mockMvc;
-
-	@Autowired
-	private EntityManager entityManager;
 
 	@Test
 	@DisplayName("공지사항 조회")
@@ -68,9 +63,6 @@ public class NoticeControllerTest {
 		NoticeInfo noticeInfo = NoticeInfo.builder().title("test").contents("test").writer("test").build();
 
 		NoticeInfo info = noticeRepository.save(noticeInfo);
-
-		entityManager.flush();
-		entityManager.clear();
 
 		ResultActions resultActions = mockMvc.perform(get("/api/notice/info/{noticeNo}", info.getNoticeNo()));
 
@@ -94,7 +86,7 @@ public class NoticeControllerTest {
 	@DisplayName("공지사항 저장 성공")
 	public void createNoticeInfo() throws Exception {
 		ResultActions resultActions = mockMvc.perform(multipart("/api/notice/info").param("title", "test11").param("contents", "test").param("writer", "test").param("startDate", "2024-07-24 00:00:00")
-				.param("endDate", "2024-07-24 23:59:59").contentType(MediaType.APPLICATION_JSON));
+				.param("endDate", "2024-07-24 23:59:59").contentType(MediaType.MULTIPART_FORM_DATA));
 
 		resultActions.andExpect(status().isOk()).andDo(print()).andExpect(jsonPath("$.result.data", is(MessageCode.NOTICE_SAVE_SUCCESS.getMessage())));
 	}
@@ -103,7 +95,7 @@ public class NoticeControllerTest {
 	@DisplayName("공지사항 저장 - 유효성 검사(제목 필수누락)")
 	public void createNoticeInfo_validationTitle() throws Exception {
 		ResultActions resultActions = mockMvc.perform(
-				multipart("/api/notice/info").param("contents", "test").param("writer", "test").param("startDate", "2024-07-24 00:00:00").param("endDate", "2024-07-24 23:59:59").contentType(MediaType.APPLICATION_JSON));
+				multipart("/api/notice/info").param("contents", "test").param("writer", "test").param("startDate", "2024-07-24 00:00:00").param("endDate", "2024-07-24 23:59:59").contentType(MediaType.MULTIPART_FORM_DATA));
 
 		resultActions.andExpect(status().isBadRequest()).andDo(print()).andExpect(jsonPath("$.result.msg", is("제목은 필수입력 사항입니다.")));
 	}
@@ -111,10 +103,10 @@ public class NoticeControllerTest {
 	@Test
 	@DisplayName("공지사항 저장 - 유효성 검사(작성자 최대 길이)")
 	public void createNoticeInfo_validationWriter() throws Exception {
-		ResultActions resultActions = mockMvc.perform(multipart("/api/notice/info").param("title", "test111").param("contents", "test").param("writer", "testtesttest").param("startDate", "2024-07-24 00:00:00")
-				.param("endDate", "2024-07-24 23:59:59").contentType(MediaType.APPLICATION_JSON));
+		ResultActions resultActions = mockMvc.perform(multipart("/api/notice/info").param("title", "test111").param("contents", "test").param("writer", "testtesttesttesttesttesttesttesttesttesttesttesttesttesttest").param("startDate", "2024-07-24 00:00:00")
+				.param("endDate", "2024-07-24 23:59:59").contentType(MediaType.MULTIPART_FORM_DATA));
 
-		resultActions.andExpect(status().isBadRequest()).andDo(print()).andExpect(jsonPath("$.result.msg", is("작성자의 최대 길이는 10자 입니다.")));
+		resultActions.andExpect(status().isBadRequest()).andDo(print()).andExpect(jsonPath("$.result.msg", is("작성자의 최대 길이는 32자 입니다.")));
 	}
 
 	@Test
@@ -125,7 +117,7 @@ public class NoticeControllerTest {
 		NoticeInfo info = noticeRepository.save(noticeInfo);
 
 		ResultActions resultActions = mockMvc.perform(multipart("/api/notice/info").param("title", info.getTitle()).param("contents", info.getContents()).param("writer", info.getWriter()).param("startDate", "2024-07-24 00:00:00")
-				.param("endDate", "2024-07-24 23:59:59").contentType(MediaType.APPLICATION_JSON));
+				.param("endDate", "2024-07-24 23:59:59").contentType(MediaType.MULTIPART_FORM_DATA));
 
 		resultActions.andExpect(status().isInternalServerError()).andDo(print()).andExpect(jsonPath("$.result.msg", is(ExceptionCode.NOTICE_EXIST.getMessage())));
 	}
@@ -151,11 +143,8 @@ public class NoticeControllerTest {
 
 		NoticeInfo info = noticeRepository.save(noticeInfo);
 
-		entityManager.flush();
-		entityManager.clear();
-
 		ResultActions resultActions = mockMvc.perform(multipart(HttpMethod.PATCH, "/api/notice/info/{noticeNo}", info.getNoticeNo()).param("contents", "changeContents").param("writer", info.getWriter())
-				.param("startDate", info.getStartDate().toString()).param("endDate", info.getEndDate().toString()).contentType(MediaType.APPLICATION_JSON));
+				.param("startDate", info.getStartDate().toString()).param("endDate", info.getEndDate().toString()).contentType(MediaType.MULTIPART_FORM_DATA));
 
 		resultActions.andExpect(status().isOk()).andDo(print()).andExpect(jsonPath("$.result.data", is(MessageCode.NOTICE_UPDATE_SUCCESS.getMessage())));
 
@@ -170,10 +159,7 @@ public class NoticeControllerTest {
 		
 		NoticeInfo info = noticeRepository.save(noticeInfo);
 
-		entityManager.flush();
-		entityManager.clear();
-
-		ResultActions resultActions = mockMvc.perform(multipart(HttpMethod.PATCH, "/api/notice/info/{noticeNo}", info.getNoticeNo()).param("title", "changeTitle").contentType(MediaType.APPLICATION_JSON));
+		ResultActions resultActions = mockMvc.perform(multipart(HttpMethod.PATCH, "/api/notice/info/{noticeNo}", info.getNoticeNo()).param("title", "changeTitle").contentType(MediaType.MULTIPART_FORM_DATA));
 
 		resultActions.andExpect(status().isOk()).andDo(print()).andExpect(jsonPath("$.result.data", is(MessageCode.NOTICE_UPDATE_SUCCESS.getMessage())));
 		
@@ -190,10 +176,7 @@ public class NoticeControllerTest {
 		NoticeInfo info = noticeRepository.save(noticeInfo);
 		noticeRepository.save(noticeInfo2);
 
-		entityManager.flush();
-		entityManager.clear();
-
-		ResultActions resultActions = mockMvc.perform(multipart(HttpMethod.PATCH, "/api/notice/info/{noticeNo}", info.getNoticeNo()).param("title", noticeInfo2.getTitle()).contentType(MediaType.APPLICATION_JSON));
+		ResultActions resultActions = mockMvc.perform(multipart(HttpMethod.PATCH, "/api/notice/info/{noticeNo}", info.getNoticeNo()).param("title", noticeInfo2.getTitle()).contentType(MediaType.MULTIPART_FORM_DATA));
 
 		resultActions.andExpect(status().isInternalServerError()).andDo(print()).andExpect(jsonPath("$.result.msg", is(ExceptionCode.NOTICE_EXIST.getMessage())));
 	}

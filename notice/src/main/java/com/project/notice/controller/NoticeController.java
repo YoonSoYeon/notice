@@ -35,8 +35,7 @@ public class NoticeController {
 
 	// select notice all
 	@GetMapping("/infos")
-	public Response readNoticeInfos(@RequestParam(value = "pageNo", defaultValue = "0", required = false) int pageNo,
-			 @RequestParam(value = "pageSize", defaultValue = "100", required = false) int pageSize) throws Exception {
+	public Response readNoticeInfos(@RequestParam(value = "pageNo", defaultValue = "0", required = false) int pageNo, @RequestParam(value = "pageSize", defaultValue = "100", required = false) int pageSize) throws Exception {
 		return Response.success(noticeService.readNoticeInfos(pageNo, pageSize));
 	}
 
@@ -47,10 +46,9 @@ public class NoticeController {
 	}
 
 	// create notice
-	@PostMapping(value = "/info",
-			consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+	@PostMapping(value = "/info", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 	public Response createNoticeInfo(HttpServletRequest httpRequest, @Valid NoticeInfoCreationRequest request, @RequestParam(required = false, value = "file") MultipartFile[] files) throws Exception {
-		request.setWriter(httpRequest.getRemoteAddr());
+		request.setWriter(WebUtil.getClientIpAddress(httpRequest));
 		noticeService.createNoticeInfo(request, files);
 		return Response.success(MessageCode.NOTICE_SAVE_SUCCESS.getMessage());
 	}
@@ -63,8 +61,7 @@ public class NoticeController {
 	}
 
 	// update notice one by noticeNo
-	@PatchMapping(value = "/info/{noticeNo}",
-			consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+	@PatchMapping(value = "/info/{noticeNo}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 	public Response updateNoticeInfo(@Valid NoticeInfoUpdationRequest request, @RequestParam(required = false, value = "file") MultipartFile[] files, @PathVariable("noticeNo") Long noticeNo) throws Exception {
 		noticeService.updateNoticeInfo(request, files, noticeNo);
 		return Response.success(MessageCode.NOTICE_UPDATE_SUCCESS.getMessage());
